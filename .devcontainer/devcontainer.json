@@ -7,7 +7,6 @@
   "dockerComposeFile": "docker-compose.yml",
   "service": "app",
   "workspaceFolder": "/workspace",
-
   // Set *default* container specific settings.json values on container create.
   "settings": {
     "terminal.integrated.shell.linux": "/bin/bash",
@@ -25,19 +24,18 @@
     "python.linting.pylintPath": "/usr/local/py-utils/bin/pylint",
     "python.testing.pytestPath": "/usr/local/py-utils/bin/pytest"
   },
-
   // Add the IDs of extensions you want installed when the container is created.
-  "extensions": ["ms-python.python"],
-
+  "extensions": [
+    "ms-python.python",
+    "ms-azuretools.vscode-docker",
+    // "dracula-theme.theme-dracula"
+  ],
   // Uncomment the next line if you want start specific services in your Docker Compose config.
   // "runServices": [],
-
   // Uncomment the next line if you want to keep your containers running after VS Code shuts down.
   // "shutdownAction": "none",
-
   // Use 'postCreateCommand' to run commands after the container is created.
   "postCreateCommand": "pip install --user -r requirements.txt"
-
   // Uncomment to connect as a non-root user. See https://aka.ms/vscode-remote/containers/non-root.
   // "remoteUser": "vscode"
 }

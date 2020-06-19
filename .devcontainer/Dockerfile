@@ -19,11 +19,14 @@ ARG USER_GID=$USER_UID
 
 # [Optional] Update UID/GID if needed
 RUN if [ "$USER_GID" != "1000" ] || [ "$USER_UID" != "1000" ]; then \
-        groupmod --gid $USER_GID $USERNAME \
-        && usermod --uid $USER_UID --gid $USER_GID $USERNAME \
-        && chmod -R $USER_UID:$USER_GID /home/$USERNAME; \
+    groupmod --gid $USER_GID $USERNAME \
+    && usermod --uid $USER_UID --gid $USER_GID $USERNAME \
+    && chmod -R $USER_UID:$USER_GID /home/$USERNAME; \
     fi
 
+RUN export SNIPPET="\nexport LS_OPTIONS='--color=auto'\neval \"\`dircolors\`\"\nalias ls='ls \$LS_OPTIONS'\nalias ll='ls \$LS_OPTIONS -l'\nalias l='ls \$LS_OPTIONS -lA'\n" \
+    && echo "$SNIPPET" | tee -a ~/.bashrc \
+    && echo "$SNIPPET" | tee -a ~/.zshrc
 
 # [Optional] If your requirements rarely change, uncomment this section to add them to the image.
 #
