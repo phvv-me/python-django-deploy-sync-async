@@ -1,0 +1,67 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Django: New Project",
+            "type": "process",
+            "command": "/root/.local/lib/python3.8/site-packages/django/bin/django-admin.py",
+            "args": [
+                "startproject",
+                "${input:djangoProjectName}"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Django: Make Migrations",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "${workspaceFolder}/my_django_project/manage.py",
+                "makemigrations"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Django: Migrate",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "${workspaceFolder}/my_django_project/manage.py",
+                "migrate"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Django: Run Server",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "${workspaceFolder}/my_django_project/manage.py",
+                "runserver"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Django: Build",
+            "dependsOn": [
+                "Django: Make Migrations",
+                "Django: Migrate",
+                "Django: Run Server"
+            ],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ],
+    "inputs": [
+        {
+            "type": "promptString",
+            "id": "djangoProjectName",
+            "description": "Name your django project",
+        },
+    ]
+}
