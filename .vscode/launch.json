@@ -10,6 +10,6 @@
                 "--noreload"
             ],
             "django": true
-        }
+        },
     ]
 }

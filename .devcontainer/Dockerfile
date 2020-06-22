@@ -30,14 +30,14 @@ RUN export SNIPPET="\nexport LS_OPTIONS='--color=auto'\neval \"\`dircolors\`\"\n
     && echo "$SNIPPET" | tee -a ~/.zshrc
 
 # Allow the vscode user to pip install globally w/o sudo
-ENV PIP_TARGET=/usr/local/pip-global
-ENV PYTHONPATH=${PIP_TARGET}:${PYTHONPATH}
-ENV PATH=${PIP_TARGET}/bin:${PATH}
-RUN mkdir -p ${PIP_TARGET} \
-    && chown root ${PIP_TARGET} \
-    && export SNIPPET="if [ \"\$(stat -c '%U' ${PIP_TARGET})\" != \"vscode\" ]; then chown -R root ${PIP_TARGET}; fi" \
-    && echo "$SNIPPET" | tee -a /root/.bashrc \
-    && echo "$SNIPPET" | tee -a /root/.zshrc
+# ENV PIP_TARGET=/usr/local/pip-global
+# ENV PYTHONPATH=${PIP_TARGET}:${PYTHONPATH}
+# ENV PATH=${PIP_TARGET}/bin:${PATH}
+# RUN mkdir -p ${PIP_TARGET} \
+#     && chown root ${PIP_TARGET} \
+#     && export SNIPPET="if [ \"\$(stat -c '%U' ${PIP_TARGET})\" != \"vscode\" ]; then chown -R root ${PIP_TARGET}; fi" \
+#     && echo "$SNIPPET" | tee -a /root/.bashrc \
+#     && echo "$SNIPPET" | tee -a /root/.zshrc
 
 # [Optional] If your requirements rarely change, uncomment this section to add them to the image.
 #
