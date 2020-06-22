@@ -31,6 +31,9 @@
                 "${workspaceFolder}/my_django_project/manage.py",
                 "migrate"
             ],
+            "dependsOn": [
+                "Django: Make Migrations"
+            ],
             "problemMatcher": []
         },
         {
@@ -41,13 +44,14 @@
                 "${workspaceFolder}/my_django_project/manage.py",
                 "runserver"
             ],
-            "problemMatcher": []
+            "dependsOn": [
+                "Django: Migrate"
+            ],
+            "problemMatcher": [],
         },
         {
             "label": "Django: Build",
             "dependsOn": [
-                "Django: Make Migrations",
-                "Django: Migrate",
                 "Django: Run Server"
             ],
             "problemMatcher": [],

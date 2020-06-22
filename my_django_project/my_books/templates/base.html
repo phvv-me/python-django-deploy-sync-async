@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>{% block title %}Base Template{% endblock %}</title>
+</head>
+
+<body>
+    <nav>
+        <a href="/books">Home</a>
+    </nav>
+
+    <main>
+        {% block main %}
+        {% endblock %}
+    </main>
+
+    <footer>
+        My Books, <a href="https://phvv.me">phvv.me</a>
+    </footer>
+</body>
+
+</html>

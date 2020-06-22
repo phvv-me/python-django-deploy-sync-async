@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block main %}
+
+<h1>Book #{{book.id}}</h1>
+<dl>
+  <dt>Title</dt>
+  <dd>{{ book.title }}</dd>
+  <dt>Author</dt>
+  <dd>{{ book.author }}</dd>
+  <dt>Language</dt>
+  <dd>{{ book.language }}</dd>
+  <dt>Number of Pages</dt>
+  <dd>{{ book.pages }}</dd>
+</dl>
+
+{% endblock %}

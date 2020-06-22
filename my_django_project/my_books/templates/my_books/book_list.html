@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block main %}
+
+<h1>My Books</h1>
+
+<table>
+    <tr>
+        <thead>
+            <tr>
+                <th scope="col">Id</th>
+                <th scope="col">Title</th>
+                <th scope="col">Author</th>
+                <th scope="col">Language</th>
+                <th scope="col">Number of Pages</th>
+                <th scope="col">Update</th>
+                <th scope="col">Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for book in books %}
+            <tr>
+                <td><a href="/books/{{book.id}}/">{{book.id}}</a></td>
+                <td>{{book.title}}</td>
+                <td>{{book.author}}</td>
+                <td>{{book.language}}</td>
+                <td>{{book.pages}}</td>
+                <td><a href="/books/{{book.id}}/update/">update</a></td>
+                <td><a href="/books/{{book.id}}/delete/">delete</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+</table>
+
+<a href="/books/create/">Add book</a>
+{% endblock %}

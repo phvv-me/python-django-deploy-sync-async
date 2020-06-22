@@ -330,3 +330,10 @@ ASALocalRun/
 .mfractor/
 
 *.DS_Store
+
+# pytest
+.benchmarks
+.pytest_cache
+
+# django migrations
+migrations/

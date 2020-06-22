@@ -17,7 +17,6 @@
     "python.linting.pycodestylePath": "/usr/local/py-utils/bin/pycodestyle",
     "python.linting.pydocstylePath": "/usr/local/py-utils/bin/pydocstyle",
     "python.linting.pylintPath": "/usr/local/py-utils/bin/pylint",
-    "python.testing.pytestPath": "/usr/local/lib/python3.8/site-packages/pytest",
     "python.linting.pylintEnabled": true,
     "python.linting.enabled": true,
   },
@@ -25,7 +24,8 @@
   "extensions": [
     "ms-python.python",
     "ms-azuretools.vscode-docker",
-    // "dracula-theme.theme-dracula"
+    // "dracula-theme.theme-dracula",
+    // "batisteo.vscode-django"
   ],
   // Uncomment the next line if you want start specific services in your Docker Compose config.
   // "runServices": [],
