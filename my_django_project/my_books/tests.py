@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 import pytest
 
 from django.test import Client
@@ -7,8 +9,10 @@ from django.forms.models import model_to_dict
 from rest_framework.status import *
 from rest_framework.test import APIClient
 
+from graphene.test import Client as GrapheneClient
+
 from .models import Book
-from django.urls import get_resolver
+from .schema import schema
 
 # fixtures
 
@@ -193,7 +197,7 @@ class TestBooksServerSide:
 
 @pytest.mark.django_db
 class TestBooksREST:
-    def test_create(self):
+    def test_create(self, benchmark):
         """Ensure we can create a new book: POST /books/"""
         client = APIClient()
 
@@ -330,31 +334,256 @@ class TestBooksREST:
 
 @pytest.mark.django_db
 class TestBooksGraphQL:
-    def test_identify_options(self):
+    def test_visualize_schema(self):
         """Ensure the allowed methods are OPTIONS, GET, HEAD, POST, PUT, PATCH, DELETE"""
-        assert False
+        client = GrapheneClient(schema)
 
-    def test_create(self):
-        """Ensure we can create a new book: POST /books/"""
-        assert False
+        query = """
+        query {
+            __schema {
+                queryType {
+                name
+                fields {
+                    name
+                    type {
+                    name
+                    }
+                    args {
+                    name
+                    }
+                }
+                
+                }
+                mutationType {
+                name
+                    fields {
+                    name
+                    type {
+                    name
+                    }
+                    args {
+                    name
+                    }
+                }
+                }
+            }
+        }
+        """
 
-    def test_read_one(self, books):
-        """Ensure we can retrieve one book: GET /books/1"""
+        result = {
+            "data": {
+                "__schema": {
+                    "queryType": {
+                        "name": "BookQuery",
+                        "fields": [
+                            {
+                                "name": "book",
+                                "type": {"name": "BookType"},
+                                "args": [{"name": "id"}, {"name": "title"}],
+                            },
+                            {"name": "allBooks", "type": {"name": None}, "args": []},
+                        ],
+                    },
+                    "mutationType": {
+                        "name": "Mutations",
+                        "fields": [
+                            {
+                                "name": "createBook",
+                                "type": {"name": "CreateBookMutation"},
+                                "args": [{"name": "input"}],
+                            },
+                            {
+                                "name": "updateBook",
+                                "type": {"name": "UpdateBookMutation"},
+                                "args": [{"name": "id"}, {"name": "input"}],
+                            },
+                            {
+                                "name": "deleteBook",
+                                "type": {"name": "DeleteBookMutation"},
+                                "args": [{"name": "id"}],
+                            },
+                        ],
+                    },
+                }
+            }
+        }
 
-        assert False
+        assert client.execute(query) == result
 
-    def test_read_all(self, books):
+    def test_create(self, benchmark):
+        """Ensure we can create a new book"""
+        client = GrapheneClient(schema)
+
+        book = {
+            "title": "Moby Dick",
+            "author": "Herman Melville",
+            "language": "EN",
+            "pages": 698,
+        }
+
+        variables = {"input": book}
+
+        mutation = """
+        mutation createMutation($input: CreateBookInput!) {
+                createBook(input: $input) {
+                    book {
+                        title
+                        author
+                        language
+                        pages
+                    }
+                }
+            }
+        """
+
+        result = {"data": OrderedDict([("createBook", {"book": book})])}
+
+        assert benchmark(client.execute, mutation, variable_values=variables) == result
+
+        # read the created book
+        new_book = Book.objects.get(pk=1)
+
+        assert model_to_dict(new_book) == {"id": 1, **book}
+
+    def test_read_one(self, benchmark, books):
+        """Ensure we can retrieve one book"""
+        client = GrapheneClient(schema)
+
+        query = """ 
+        query {
+            book(id: 1) {
+                id
+                title
+                author
+                language
+                pages
+            }
+        }"""
+
+        result = {
+            "data": {
+                "book": {
+                    "id": "1",
+                    "title": "Moby Dick",
+                    "author": "Herman Melville",
+                    "language": "english",
+                    "pages": 677,
+                }
+            }
+        }
+
+        assert benchmark(client.execute, query) == result
+
+    def test_read_all(self, benchmark, books):
         """Ensure we can list all books: GET /books/"""
-        assert False
+        client = GrapheneClient(schema)
 
-    def test_update(self, books):
-        """Ensure we can update a book: PUT /books/1"""
-        assert False
+        query = """ 
+        query {
+            allBooks {
+                    id
+                    title
+                    author
+                    language
+                    pages
+                }
+            }"""
 
-    def test_partial_update(self, books):
-        """Ensure we can partial update a book: PATCH /books/1"""
-        assert False
+        result = {
+            "data": {
+                "allBooks": [
+                    {
+                        "id": "1",
+                        "title": "Moby Dick",
+                        "author": "Herman Melville",
+                        "language": "english",
+                        "pages": 677,
+                    },
+                    {
+                        "id": "2",
+                        "title": "As Crônicas de Nárnia",
+                        "author": "C. S. Lewis",
+                        "language": "portuguese",
+                        "pages": 752,
+                    },
+                    {
+                        "id": "3",
+                        "title": "Harry Potter und Der Stein der Weisen",
+                        "author": "J. K. Rowling",
+                        "language": "german",
+                        "pages": 337,
+                    },
+                    {
+                        "id": "4",
+                        "title": "羊をめぐる冒険",
+                        "author": "Haruki Murakami",
+                        "language": "japanese",
+                        "pages": 331,
+                    },
+                ]
+            }
+        }
+
+        assert benchmark(client.execute, query) == result
+
+    def test_update(self, benchmark, books):
+        """Ensure we can partial update a book"""
+        client = GrapheneClient(schema)
+
+        variables = {"id": 1, "input": {"language": "JP", "pages": 566}}
+
+        mutation = """
+        mutation updateMutation($id: ID!, $input: PatchBookInput!) {
+                updateBook(id: $id, input: $input) {
+                    book {
+                        id
+                        title
+                        author
+                        language
+                        pages
+                    }
+                }
+            }
+        """
+
+        book = {
+            "title": "Moby Dick",
+            "author": "Herman Melville",
+            "language": "JP",
+            "pages": 566,
+        }
+
+        result = {"data": OrderedDict([("updateBook", {"book": {"id": "1", **book}})])}
+
+        assert benchmark(client.execute, mutation, variable_values=variables) == result
+
+        # read the updated book
+        updated_book = Book.objects.get(pk=1)
+
+        assert model_to_dict(updated_book) == {"id": 1, **book}
 
     def test_delete(self, books):
-        """Ensure we can delete a book: DELETE /books/1"""
-        assert False
+        """Ensure we can delete a book"""
+        client = GrapheneClient(schema)
+
+        variables = {"id": 1}
+
+        mutation = """
+        mutation deleteMutation($id: ID!) {
+                deleteBook(id: $id) {
+                    found
+                    deletedId
+                }
+            }
+        """
+
+        result = {
+            "data": OrderedDict([("deleteBook", {"found": True, "deletedId": "1"},)])
+        }
+
+        assert client.execute(mutation, variable_values=variables) == result
+
+        # reading the book should fail
+        with pytest.raises(Book.DoesNotExist) as excinfo:
+            Book.objects.get(pk=1)  # deleted book
+            assert excinfo.value == "Book matching query does not exist"
