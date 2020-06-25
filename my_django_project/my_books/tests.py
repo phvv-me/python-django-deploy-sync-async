@@ -51,7 +51,7 @@ def books():
 
 @pytest.mark.django_db
 class TestBooksServerSide:
-    def test_create(self):
+    def test_create_server_side(self, benchmark):
         """Ensure we can create a new book."""
 
         client = Client()
@@ -65,7 +65,7 @@ class TestBooksServerSide:
 
         # create book
         url = reverse("book-create")
-        response = client.post(url, body, follow=True)
+        response = benchmark(client.post, url, body, follow=True)
 
         assert response.status_code is HTTP_200_OK
         # assert response.redirect_chain == [("/books/", 302)]
@@ -75,7 +75,7 @@ class TestBooksServerSide:
 
         assert model_to_dict(new_book) == {"id": 1, **body}
 
-    def test_read_one(self, books):
+    def test_read_one_server_side(self, benchmark, books):
         """Ensure we can read the book data."""
         client = Client()
 
@@ -88,12 +88,12 @@ class TestBooksServerSide:
         }
 
         url = reverse("book-read", kwargs={"pk": 1})
-        response = client.get(url)
+        response = benchmark(client.get, url)
 
         assert response.status_code is HTTP_200_OK
         assert book == model_to_dict(response.context["book"])
 
-    def test_read_all(self, books):
+    def test_read_all_server_side(self, benchmark, books):
         """Ensure we can see a list of all the books."""
         client = Client()
 
@@ -128,12 +128,12 @@ class TestBooksServerSide:
             },
         ]
         url = reverse("book-list")
-        response = client.get(url)
+        response = benchmark(client.get, url)
 
         assert response.status_code is HTTP_200_OK
         assert context == list(response.context["books"].values())
 
-    def test_update(self, books):
+    def test_update_server_side(self, benchmark, books):
         """Ensure we can update a book."""
         client = Client()
 
@@ -145,7 +145,9 @@ class TestBooksServerSide:
         }
 
         url = reverse("book-update", kwargs={"pk": 1})
-        response = client.post(url, body, follow=True)  # forms cannot recieve "PUT"
+        response = benchmark(
+            client.post, url, body, follow=True
+        )  # forms cannot recieve "PUT"
 
         assert response.status_code is HTTP_200_OK
         assert response.redirect_chain == [("/books/", 302)]
@@ -155,7 +157,7 @@ class TestBooksServerSide:
 
         assert model_to_dict(updated_book) == {"id": 1, **body}
 
-    def test_delete(self, books):
+    def test_delete_server_side(self, books):
         """Ensure we can delete a book."""
         client = Client()
 
@@ -184,7 +186,7 @@ class TestBooksServerSide:
 
         # create book
         url = reverse("book-create")
-        response = client.post(url, body, follow=True)
+        response = benchmark(client.post, url, body, follow=True)
         language_errors = list(response.context_data["form"].errors["language"])
 
         # even though it fails to create, the error is displayed as a form error
@@ -197,7 +199,7 @@ class TestBooksServerSide:
 
 @pytest.mark.django_db
 class TestBooksREST:
-    def test_create(self, benchmark):
+    def test_create_rest(self, benchmark):
         """Ensure we can create a new book: POST /books/"""
         client = APIClient()
 
@@ -210,7 +212,7 @@ class TestBooksREST:
 
         # create book
         url = reverse("book-rest-list")
-        response = client.post(url, body)
+        response = benchmark(client.post, url, body)
 
         assert response.status_code is HTTP_201_CREATED
 
@@ -219,12 +221,12 @@ class TestBooksREST:
 
         assert model_to_dict(new_book) == {"id": 1, **body}
 
-    def test_read_one(self, books):
+    def test_read_one_rest(self, benchmark, books):
         """Ensure we can retrieve one book: GET /books/1"""
         client = APIClient()
 
         url = reverse("book-rest-detail", kwargs={"pk": 1})
-        response = client.get(url)
+        response = benchmark(client.get, url)
 
         body = {
             "id": 1,
@@ -237,12 +239,12 @@ class TestBooksREST:
         assert response.status_code is HTTP_200_OK
         assert response.json() == body
 
-    def test_read_all(self, books):
+    def test_read_all_rest(self, benchmark, books):
         """Ensure we can list all books: GET /books/"""
         client = APIClient()
 
         url = reverse("book-rest-list")
-        response = client.get(url)
+        response = benchmark(client.get, url)
 
         body = [
             {
@@ -278,7 +280,7 @@ class TestBooksREST:
         assert response.status_code is HTTP_200_OK
         assert response.json() == body
 
-    def test_update(self, books):
+    def test_update_rest(self, benchmark, books):
         """Ensure we can update a book: PUT /books/1"""
         client = APIClient()
 
@@ -290,7 +292,7 @@ class TestBooksREST:
         }
 
         url = reverse("book-rest-detail", kwargs={"pk": 1})
-        response = client.put(url, body)
+        response = benchmark(client.put, url, body)
 
         assert response.status_code is HTTP_200_OK
 
@@ -299,7 +301,7 @@ class TestBooksREST:
 
         assert model_to_dict(updated_book) == {"id": 1, **body}
 
-    def test_partial_update(self, books):
+    def test_partial_update_rest(self, benchmark, books):
         """Ensure we can partial update a book: PATCH /books/1"""
         client = APIClient()
 
@@ -308,7 +310,7 @@ class TestBooksREST:
         }
 
         url = reverse("book-rest-detail", kwargs={"pk": 1})
-        response = client.patch(url, body)
+        response = benchmark(client.patch, url, body)
 
         assert response.status_code is HTTP_200_OK
 
@@ -317,7 +319,7 @@ class TestBooksREST:
 
         assert updated_book.language == body["language"]
 
-    def test_delete(self, books):
+    def test_delete_rest(self, books):
         """Ensure we can delete a book: DELETE /books/1"""
         client = APIClient()
 
@@ -410,7 +412,7 @@ class TestBooksGraphQL:
 
         assert client.execute(query) == result
 
-    def test_create(self, benchmark):
+    def test_create_gql(self, benchmark):
         """Ensure we can create a new book"""
         client = GrapheneClient(schema)
 
@@ -445,7 +447,7 @@ class TestBooksGraphQL:
 
         assert model_to_dict(new_book) == {"id": 1, **book}
 
-    def test_read_one(self, benchmark, books):
+    def test_read_one_gql(self, benchmark, books):
         """Ensure we can retrieve one book"""
         client = GrapheneClient(schema)
 
@@ -474,7 +476,7 @@ class TestBooksGraphQL:
 
         assert benchmark(client.execute, query) == result
 
-    def test_read_all(self, benchmark, books):
+    def test_read_all_gql(self, benchmark, books):
         """Ensure we can list all books: GET /books/"""
         client = GrapheneClient(schema)
 
@@ -526,7 +528,7 @@ class TestBooksGraphQL:
 
         assert benchmark(client.execute, query) == result
 
-    def test_update(self, benchmark, books):
+    def test_update_gql(self, benchmark, books):
         """Ensure we can partial update a book"""
         client = GrapheneClient(schema)
 
@@ -562,7 +564,7 @@ class TestBooksGraphQL:
 
         assert model_to_dict(updated_book) == {"id": 1, **book}
 
-    def test_delete(self, books):
+    def test_delete_gql(self, books):
         """Ensure we can delete a book"""
         client = GrapheneClient(schema)
 
