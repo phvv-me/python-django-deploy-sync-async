@@ -186,7 +186,7 @@ class TestBooksServerSide:
 
         # create book
         url = reverse("book-create")
-        response = benchmark(client.post, url, body, follow=True)
+        response = client.post(url, body, follow=True)
         language_errors = list(response.context_data["form"].errors["language"])
 
         # even though it fails to create, the error is displayed as a form error
