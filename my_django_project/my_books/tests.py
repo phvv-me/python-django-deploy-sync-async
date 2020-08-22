@@ -68,7 +68,7 @@ class TestBooksServerSide:
         response = benchmark(client.post, url, body, follow=True)
 
         assert response.status_code is HTTP_200_OK
-        # assert response.redirect_chain == [("/books/", 302)]
+        assert response.redirect_chain == [("/books/", 302)]
 
         # read the created book
         new_book = Book.objects.get(pk=1)

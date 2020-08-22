@@ -335,5 +335,11 @@ ASALocalRun/
 .benchmarks
 .pytest_cache
 
+# virtualenv
+venv/
+
 # django migrations
 migrations/
+
+# databases
+*.sqlite3
