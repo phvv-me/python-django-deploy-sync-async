@@ -180,7 +180,7 @@ class TestBooksServerSide:
         body = {
             "title": "Moby Dick",
             "author": "Herman Melville",
-            "language": "FR",
+            "language": "XY",
             "pages": 821,
         }
 
@@ -193,7 +193,7 @@ class TestBooksServerSide:
         # meaning the response has a 2XX status
         assert response.status_code is HTTP_200_OK
         assert language_errors == [
-            "Select a valid choice. FR is not one of the available choices."
+            "Select a valid choice. XY is not one of the available choices."
         ]
 
 

@@ -343,3 +343,4 @@ migrations/
 
 # databases
 *.sqlite3
+!/my_django_project/db.sqlite3

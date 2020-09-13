@@ -29,6 +29,10 @@ RUN export SNIPPET="\nexport LS_OPTIONS='--color=auto'\neval \"\`dircolors\`\"\n
     && echo "$SNIPPET" | tee -a ~/.bashrc \
     && echo "$SNIPPET" | tee -a ~/.zshrc
 
+# cache dependencies
+ADD requirements.txt requirements.txt
+RUN pip install -r requirements.txt
+
 # Allow the vscode user to pip install globally w/o sudo
 # ENV PIP_TARGET=/usr/local/pip-global
 # ENV PYTHONPATH=${PIP_TARGET}:${PYTHONPATH}
