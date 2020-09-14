@@ -70,7 +70,7 @@ WSGI_APPLICATION = "my_django_project.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-if os.environ.get("PRODUCTION", False):
+if config("PRODUCTION", default=False, cast=bool):
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",

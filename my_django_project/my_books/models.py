@@ -32,8 +32,9 @@ class Book(models.Model):
         GAELIC = "GL", "gaelic"
         ALEUT = "AL", "aleut"
         MULTIPLE_LANGUAGES = "MU", "multiple languages"
+        UNKNOWN = "UN", "unknown"
 
-    language = models.CharField(max_length=2, choices=AvailableLanguages.choices)
+    language = models.CharField(max_length=2, choices=AvailableLanguages.choices, default=AvailableLanguages.UNKNOWN)
 
     def __str__(self):
         return self.title

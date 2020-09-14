@@ -344,3 +344,12 @@ migrations/
 # databases
 *.sqlite3
 !/my_django_project/db.sqlite3
+
+# terraform
+/.terraform
+terraform.tfstate.backup
+terraform.tfstate
+
+# extra
+.env
+*.zip
